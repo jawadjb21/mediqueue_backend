@@ -33,13 +33,20 @@ async function run() {
          * GET tutors route
          */
         app.get("/tutors", async (req, res) => {
-
+            const allTutors = tutors.find();
+            if (tutors) {
+                const result = await allTutors.toArray();
+                console.log(result);
+                res.send(result);
+            } else {
+                console.log("No tutors found!");
+            }
         });
 
         /**
          * POST add-tutors route
          */
-        app.post("/add-tutors", async(req, res) => {
+        app.post("/add-tutors", async (req, res) => {
             const newTutor = req.body;
 
             const result = await tutors.insertOne(newTutor);
