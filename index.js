@@ -1,7 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const env = require("dotenv");
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 env.config();
 
 const app = express();
@@ -36,7 +36,6 @@ async function run() {
             const allTutors = tutors.find();
             if (tutors) {
                 const result = await allTutors.toArray();
-                console.log(result);
                 res.send(result);
             } else {
                 console.log("No tutors found!");
@@ -54,6 +53,20 @@ async function run() {
             res.send(result)
         })
 
+        /**
+         * GET dynamic tutor route
+         */
+        app.get(`/tutors/:id`, async (req, res) => {
+            const { id } = req.params;
+
+            const query = {
+                _id: new ObjectId(id),
+            }
+
+            const result = await tutors.findOne(query);
+
+            res.send(result);
+        })
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
