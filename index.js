@@ -128,6 +128,19 @@ async function run() {
         });
 
         /**
+         * DELETE tutors route
+         */
+        app.delete("/tutors/:id", async (req, res) => {
+            const query = {
+                _id: new ObjectId(req.params.id),
+            };
+
+            const result = await tutors.deleteOne(query);
+
+            res.send(result);
+        })
+
+        /**
          *  GET my-tutors route
         */
         app.get("/myTutors/:userId", async (req, res) => {
