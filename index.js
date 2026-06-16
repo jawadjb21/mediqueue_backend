@@ -81,8 +81,6 @@ async function run() {
             const query = {
                 _id: new ObjectId(req.params.id)
             };
-            console.log(req);
-
             if (req.body.updateAll) {
                 const { name, image, subject, days, fee, slot, institute, location, mode, start } = req.body;
                 const updatedTutor = {
@@ -100,7 +98,7 @@ async function run() {
                     }
                 }
                 const result = await tutors.updateOne(query, updatedTutor);
-                console.log(result);
+
                 res.send(result);
             } else {
                 /**
