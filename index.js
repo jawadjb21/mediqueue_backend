@@ -20,7 +20,6 @@ app.get("/", async (req, res) => {
     res.send("Vamos Argentina!")
 });
 
-
 async function run() {
     try {
         // Connect the client to the server	(optional starting in v4.7)
@@ -29,6 +28,19 @@ async function run() {
         const db = client.db("mediqueue");
         const tutors = db.collection("tutors");
         const bookings = db.collection("bookings");
+
+        /** 
+         * Find relevant tutor.
+        */
+        const findTutor = async (id) => {
+            const query = {
+                _id: new ObjectId(id)
+            };
+
+            const tutor = await tutors.findOne(query);
+
+            return tutor;
+        };
 
         /**
          * GET tutors route
@@ -58,14 +70,7 @@ async function run() {
          * GET dynamic tutor route
         */
         app.get(`/tutors/:id`, async (req, res) => {
-            const { id } = req.params;
-
-            const query = {
-                _id: new ObjectId(id),
-            }
-
-            const result = await tutors.findOne(query);
-
+            const result = await findTutor(req.params.id);
             res.send(result);
         });
 
@@ -73,19 +78,29 @@ async function run() {
          *  PATCH tutor route
         */
         app.patch("/tutors/:id", async (req, res) => {
-            const { id } = req.params;
-
             const query = {
-                _id: new ObjectId(id)
-            }
+                _id: new ObjectId(req.params.id)
+            };
 
-            const previousState = await tutors.findOne(query);
+            /**
+             *  Will cause failure on race condition if two users simulataenously book.
+            
+            const previousState = await findTutor(req.params.id);
 
             const updatedSlot = {
                 $set: {
                     slot: Number(previousState.slot) + Number(req.body.slot)
                 }
-            }
+            };
+
+            */
+            
+            // Atomic approach.
+            const updatedSlot = {
+                $inc: {
+                    slot: Number(req.body.slot)
+                }
+            };
 
             const result = await tutors.updateOne(query, updatedSlot);
 
