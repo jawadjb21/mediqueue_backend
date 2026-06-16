@@ -28,10 +28,11 @@ async function run() {
 
         const db = client.db("mediqueue");
         const tutors = db.collection("tutors");
+        const bookings = db.collection("bookings");
 
         /**
          * GET tutors route
-         */
+        */
         app.get("/tutors", async (req, res) => {
             const allTutors = tutors.find();
             if (tutors) {
@@ -44,7 +45,7 @@ async function run() {
 
         /**
          * POST add-tutors route
-         */
+        */
         app.post("/add-tutors", async (req, res) => {
             const newTutor = req.body;
 
@@ -55,7 +56,7 @@ async function run() {
 
         /**
          * GET dynamic tutor route
-         */
+        */
         app.get(`/tutors/:id`, async (req, res) => {
             const { id } = req.params;
 
@@ -66,7 +67,42 @@ async function run() {
             const result = await tutors.findOne(query);
 
             res.send(result);
+        });
+
+        /**
+         *  PATCH tutor route
+        */
+        app.patch("/tutors/:id", async (req, res) => {
+            const { id } = req.params;
+
+            const query = {
+                _id: new ObjectId(id)
+            }
+
+            const previousState = await tutors.findOne(query);
+
+            const updatedSlot = {
+                $set: {
+                    slot: Number(previousState.slot) + Number(req.body.slot)
+                }
+            }
+
+            const result = await tutors.updateOne(query, updatedSlot);
+
+            res.send(result);
+        });
+
+        /**
+         * POST bookings route.
+        */
+        app.post("/bookings", async (req, res) => {
+            const newBooking = req.body;
+
+            const result = await bookings.insertOne(newBooking);
+
+            res.send(result);
         })
+
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
