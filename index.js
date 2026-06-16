@@ -81,30 +81,52 @@ async function run() {
             const query = {
                 _id: new ObjectId(req.params.id)
             };
+            console.log(req);
 
-            /**
-             *  Will cause failure on race condition if two users simulataenously book.
-            
-            const previousState = await findTutor(req.params.id);
-
-            const updatedSlot = {
-                $set: {
-                    slot: Number(previousState.slot) + Number(req.body.slot)
+            if (req.body.updateAll) {
+                const { name, image, subject, days, fee, slot, institute, location, mode, start } = req.body;
+                const updatedTutor = {
+                    $set: {
+                        name: name,
+                        image: image,
+                        subject: subject,
+                        days: days,
+                        fee: fee,
+                        slot: slot,
+                        institute: institute,
+                        location: location,
+                        mode: mode,
+                        start: start,
+                    }
                 }
-            };
+                const result = await tutors.updateOne(query, updatedTutor);
+                console.log(result);
+                res.send(result);
+            } else {
+                /**
+                 *  Will cause failure on race condition if two users simulataenously book.
+                
+                const previousState = await findTutor(req.params.id);
+    
+                const updatedSlot = {
+                    $set: {
+                        slot: Number(previousState.slot) + Number(req.body.slot)
+                    }
+                };
+    
+                */
 
-            */
+                // Atomic approach.
+                const updatedSlot = {
+                    $inc: {
+                        slot: Number(req.body.slot)
+                    }
+                };
 
-            // Atomic approach.
-            const updatedSlot = {
-                $inc: {
-                    slot: Number(req.body.slot)
-                }
-            };
+                const result = await tutors.updateOne(query, updatedSlot);
 
-            const result = await tutors.updateOne(query, updatedSlot);
-
-            res.send(result);
+                res.send(result);
+            }
         });
 
         /**
