@@ -94,7 +94,7 @@ async function run() {
             };
 
             */
-            
+
             // Atomic approach.
             const updatedSlot = {
                 $inc: {
@@ -106,6 +106,19 @@ async function run() {
 
             res.send(result);
         });
+
+        /**
+         *  GET my-tutors route
+        */
+        app.get("/myTutors/:userId", async (req, res) => {
+            const query = {
+                userId: req.params.userId
+            };
+
+            const result = await tutors.find(query).toArray();
+
+            res.send(result);
+        })
 
         /**
          * POST bookings route.
