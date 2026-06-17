@@ -154,6 +154,17 @@ async function run() {
         })
 
         /**
+         * GET bookings route.
+         */
+        app.get("/bookings/:id", async (req, res) => {
+            const query = { userId: req.params.id };
+
+            const result = await bookings.find(query).toArray();
+
+            res.send(result);
+        })
+
+        /**
          * POST bookings route.
         */
         app.post("/bookings", async (req, res) => {
