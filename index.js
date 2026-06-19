@@ -46,7 +46,6 @@ async function run() {
                     "message": "Unauthorised."
                 })
             };
-            console.log(token);
 
             try {
                 const JWKS = createRemoteJWKSet(
@@ -218,8 +217,6 @@ async function run() {
         app.delete("/bookings/:id", verifyToken, async (req, res) => {
             const headers = req.headers.authorization;
 
-            console.log(headers);
-
             const query = { _id: new ObjectId(req.params.id) };
 
             const result = await bookings.deleteOne(query);
@@ -227,6 +224,17 @@ async function run() {
             res.send(result);
         })
 
+        /**
+         * Available tutors section
+         */
+        app.get("/featured-tutors", async (req, res) => {
+            const result = await tutors
+                .find()
+                .limit(6)
+                .toArray();
+
+            res.send(result);
+        });
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
